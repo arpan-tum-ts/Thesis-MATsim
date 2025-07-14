@@ -7,11 +7,12 @@ public enum HabitualMode {
 
 
     CAR_DRIVER,
+    CAR_AUTONOMOUS,
     CAR_PASSENGER,
     PT,
     BIKE,
     WALK,
-    UNKNOWN;
+    UNKNOWN, ;
 
 
     //if someone needs to keep the mode UNKNOWN (but also allow for more mode set implementations,
@@ -24,6 +25,7 @@ public enum HabitualMode {
     public static SortedSet<HabitualMode> getHabitualModes() {
         SortedSet<HabitualMode> modes = new TreeSet<>();
         modes.add(CAR_DRIVER);
+        modes.add(CAR_AUTONOMOUS);
         modes.add(CAR_PASSENGER);
         modes.add(PT);
         modes.add(BIKE);
@@ -35,6 +37,7 @@ public enum HabitualMode {
     public static SortedSet<HabitualMode> getHabitualModesWithoutUnknown() {
         SortedSet<HabitualMode> modes = new TreeSet<>();
         modes.add(CAR_DRIVER);
+        modes.add(CAR_AUTONOMOUS);
         modes.add(CAR_PASSENGER);
         modes.add(PT);
         modes.add(BIKE);

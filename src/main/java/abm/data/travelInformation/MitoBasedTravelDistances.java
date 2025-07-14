@@ -17,7 +17,11 @@ public class MitoBasedTravelDistances implements TravelDistances {
 
     @Override
     public int getTravelDistanceInMeters(Location origin, Location destination, Mode mode, double time) {
-
+        // ─── NEW: map AV to driver so we don’t hit a missing matrix ───
+        if (mode == Mode.CAR_AUTONOMOUS) {
+            mode = Mode.CAR_DRIVER;
+        }
+        // ──────────────────────────────────────────────────────────────
         de.tum.bgu.msm.data.Location mitoOrigin = new MitoZone(origin.getZoneId(), null);
         de.tum.bgu.msm.data.Location mitoDestination = new MitoZone(destination.getZoneId(), null);
 

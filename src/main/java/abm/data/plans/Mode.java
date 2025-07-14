@@ -8,6 +8,7 @@ public enum Mode {
     TRAM_METRO,
     BUS,
     CAR_DRIVER,
+    CAR_AUTONOMOUS,   // <-- new AV‐enabled mode
     CAR_PASSENGER,
     BIKE,
     WALK,
@@ -26,6 +27,7 @@ public enum Mode {
         modes.add(TRAM_METRO);
         modes.add(BUS);
         modes.add(CAR_DRIVER);
+        modes.add(CAR_AUTONOMOUS);
         modes.add(CAR_PASSENGER);
         modes.add(BIKE);
         modes.add(WALK);

@@ -146,7 +146,16 @@ public class NestedLogitTourModeChoiceModel implements TourModeChoice {
         for (Mode mode : Mode.getModes()) {
             if (mode == Mode.CAR_DRIVER && !carAvailable) {
                 utilities.put(mode, Double.NEGATIVE_INFINITY);
-            } else {
+            }  // only allow AV if the person qualifies
+            else if (mode == Mode.CAR_AUTONOMOUS) {
+                if (!person.isNonDriverWithAVPotential()) {
+                    utilities.put(mode, Double.NEGATIVE_INFINITY);
+                } else {
+                    utilities.put(mode, calculateUtilityForThisMode(person, tour, purpose, mode, household));
+                }
+            }
+            // all other modes (including CAR_PASSENGER, PT, BIKE, WALK, etc.)
+            else {
                 utilities.put(mode, calculateUtilityForThisMode(person, tour, purpose, mode, household));
             }
         }
@@ -281,6 +290,9 @@ public class NestedLogitTourModeChoiceModel implements TourModeChoice {
             case CAR_DRIVER:
                 utility += purposeModeCoefficients.get(purpose).get(mode).getOrDefault("p.mainCommuteMode_occupied_carD", 0.);
                 break;
+            case CAR_AUTONOMOUS:
+                utility += purposeModeCoefficients.get(purpose).get(mode).getOrDefault("p.mainCommuteMode_occupied_carP", 0.);
+                break;
             case CAR_PASSENGER:
                 utility += purposeModeCoefficients.get(purpose).get(mode).getOrDefault("p.mainCommuteMode_occupied_carP", 0.);
                 break;
@@ -308,7 +320,7 @@ public class NestedLogitTourModeChoiceModel implements TourModeChoice {
         } else {
 
             utility += purposeModeCoefficients.get(purpose).get(mode).get("calibration_" + tour.getMainActivity().getDayOfWeek().toString().toLowerCase() +
-                     "_" + region.toLowerCase());
+                    "_" + region.toLowerCase());
         }
 
 
@@ -346,6 +358,7 @@ public class NestedLogitTourModeChoiceModel implements TourModeChoice {
 
         if (isLowEmissionZoneRestriction){
             utilityMap.put(Mode.CAR_DRIVER, Double.NEGATIVE_INFINITY);
+            utilityMap.put(Mode.CAR_AUTONOMOUS, Double.NEGATIVE_INFINITY);
             utilityMap.put(Mode.CAR_PASSENGER, Double.NEGATIVE_INFINITY);
         }
 
@@ -448,7 +461,7 @@ public class NestedLogitTourModeChoiceModel implements TourModeChoice {
 
     //calculates generalized costs
     private EnumMap<Mode, Double> calculateGeneralizedCosts(Purpose purpose, Household household,
-                                                           Tour tour) {
+                                                            Tour tour) {
 
         double travelDistanceAuto = 0;
 
@@ -521,6 +534,7 @@ public class NestedLogitTourModeChoiceModel implements TourModeChoice {
 
         if (purpose.equals(Purpose.ACCOMPANY)) {
             generalizedCosts.put(Mode.CAR_DRIVER, Math.log(gcAutoD));
+            generalizedCosts.put(Mode.CAR_AUTONOMOUS, Math.log(gcAutoP));
             generalizedCosts.put(Mode.CAR_PASSENGER, Math.log(gcAutoP));
             generalizedCosts.put(Mode.BIKE, Math.log(tourTravelTimes.get(Mode.BIKE)));
             generalizedCosts.put(Mode.BUS, Math.log(gcBus));
@@ -529,6 +543,7 @@ public class NestedLogitTourModeChoiceModel implements TourModeChoice {
             generalizedCosts.put(Mode.WALK, Math.log(tourTravelTimes.get(Mode.WALK)));
         } else {
             generalizedCosts.put(Mode.CAR_DRIVER, gcAutoD);
+            generalizedCosts.put(Mode.CAR_AUTONOMOUS, gcAutoP);
             generalizedCosts.put(Mode.CAR_PASSENGER, gcAutoP);
             generalizedCosts.put(Mode.BIKE, tourTravelTimes.get(Mode.BIKE));
             generalizedCosts.put(Mode.BUS, gcBus);
@@ -682,6 +697,4 @@ public class NestedLogitTourModeChoiceModel implements TourModeChoice {
         }
         return this.purposeModeCoefficients;
     }
-
-
 }

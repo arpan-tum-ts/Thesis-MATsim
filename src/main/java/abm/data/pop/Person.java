@@ -256,5 +256,20 @@ public class Person {
     public void setHabitualModeGcWalk(double habitualModeWalk) {
         this.habitualModeWalk = habitualModeWalk;
     }
+// ─────────────────────────────────────────────────────────────
+//  AV-for-non-drivers helper
+// ─────────────────────────────────────────────────────────────
+    /**
+     * @return true  if this person cannot legally drive today but would gain access
+     *               to an autonomous vehicle under the scenario assumptions
+     */
+    public boolean isNonDriverWithAVPotential() {
+
+        boolean ageTooYoung = this.age < 18;       // teenagers
+        boolean ageTooOld   = this.age >= 70;      // elderly travellers
+        boolean medicalCond = this.disability != Disability.WITHOUT;
+
+        return (!hasLicense) && (ageTooYoung || ageTooOld || medicalCond);
+    }
 
 }

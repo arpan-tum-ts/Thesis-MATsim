@@ -1,27 +1,30 @@
-package abm.models;
+package abm.scenarios.autonomousAccessibility;
 
 import abm.data.DataSet;
-import abm.data.plans.Activity;
 import abm.data.plans.Purpose;
 import abm.io.input.BikeOwnershipReader;
+import abm.models.ModelSetup;
 import abm.models.activityGeneration.frequency.FrequencyGenerator;
 import abm.models.activityGeneration.frequency.FrequencyGeneratorModel;
-import abm.models.activityGeneration.frequency.SimpleSubtourGenerator;
 import abm.models.activityGeneration.frequency.SubtourGenerator;
-import abm.models.activityGeneration.splitByType.*;
+import abm.models.activityGeneration.frequency.SubtourGeneratorModel;
+import abm.models.activityGeneration.splitByType.SplitByType;
+import abm.models.activityGeneration.splitByType.SplitByTypeModel;
+import abm.models.activityGeneration.splitByType.SplitStopByTypeModel;
+import abm.models.activityGeneration.splitByType.SplitStopType;
 import abm.models.activityGeneration.time.*;
 import abm.models.destinationChoice.DestinationChoice;
-import abm.models.destinationChoice.DestinationChoiceModel;
 import abm.models.destinationChoice.SubtourDestinationChoice;
 import abm.models.destinationChoice.SubtourDestinationChoiceModel;
 import abm.models.modeChoice.*;
-import abm.utils.AbitUtils;
+import abm.scenarios.lowEmissionZones.models.destinationChoice.McLogsumBasedDestinationChoiceModel;
+import abm.models.modeChoice.NestedLogitTourModeChoiceModel;
 import org.apache.commons.collections.map.HashedMap;
 
+import java.io.FileNotFoundException;
 import java.util.Map;
-import java.util.Random;
 
-public class DefaultModelSetup implements ModelSetup{
+public class ModelSetupAutonomousAccessibility implements ModelSetup {
 
     private final Map<Purpose, FrequencyGenerator> frequencyGenerators;
     private final HabitualModeChoice habitualModeChoice;
@@ -39,14 +42,13 @@ public class DefaultModelSetup implements ModelSetup{
     private final BikeOwnershipReader bikeOwnershipReader;
 
 
-    public DefaultModelSetup(DataSet dataSet) {
+    public ModelSetupAutonomousAccessibility(DataSet dataSet) throws FileNotFoundException {
 
-
-
-        dayOfWeekMandatoryAssignment = new SimpleDayOfWeekMandatoryAssignment();
-        tourModeChoice = new SimpleTourModeChoice(dataSet);
-        habitualModeChoice = new SimpleHabitualModeChoice();
-        dayOfWeekDiscretionaryAssignment = new SimpleDayOfWeekDiscretionaryAssignment();
+        bikeOwnershipReader = new BikeOwnershipReader(dataSet);
+        dayOfWeekMandatoryAssignment = new DayOfWeekMandatoryAssignmentModel(dataSet);
+        tourModeChoice = new NestedLogitTourModeChoiceModel(dataSet);
+        habitualModeChoice = new NestedLogitHabitualModeChoiceModel(dataSet);
+        dayOfWeekDiscretionaryAssignment = new DayOfWeekDiscretionaryAssignmentModel(dataSet);
 
         frequencyGenerators = new HashedMap();
         for (Purpose purpose : Purpose.getAllPurposes()){
@@ -54,16 +56,13 @@ public class DefaultModelSetup implements ModelSetup{
         }
         stopSplitType = new SplitStopByTypeModel();
         splitByType = new SplitByTypeModel(dataSet);
-        destinationChoice = new DestinationChoiceModel(dataSet);
+        destinationChoice = new McLogsumBasedDestinationChoiceModel(dataSet);
         timeAssignment = new TimeAssignmentModel(dataSet);
 
-        subtourGenerator = new SimpleSubtourGenerator();
-        subtourTimeAssignment = new SimpleSubtourTimeAssignment();
+        subtourGenerator = new SubtourGeneratorModel(dataSet);
+        subtourTimeAssignment = new SubtourTimeAssignmentModel(dataSet);
         subtourDestinationChoice  =new SubtourDestinationChoiceModel(dataSet);
-        subtourModeChoice = new SimpleSubtourModeChoice();
-        bikeOwnershipReader = new BikeOwnershipReader(dataSet);
-
-
+        subtourModeChoice = new SubtourModeChoiceModel(dataSet);
 
     }
 
@@ -132,8 +131,8 @@ public class DefaultModelSetup implements ModelSetup{
         return subtourModeChoice;
     }
 
-    @Override
-    public BikeOwnershipReader getBikeOwnershipReader() {return bikeOwnershipReader;}
+    public BikeOwnershipReader getBikeOwnershipReader() {
+        return bikeOwnershipReader;
+    }
 
 }
-

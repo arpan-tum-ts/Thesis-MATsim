@@ -20,6 +20,12 @@ public class MitoBasedTravelTimes implements TravelTimes {
         de.tum.bgu.msm.data.Location mitoOrigin = new MitoZone(origin.getZoneId(), null);
         de.tum.bgu.msm.data.Location mitoDestination = new MitoZone(destination.getZoneId(), null);
 
+
+        // ─── NEW: map AV to driver so we don’t request a missing skim ───
+        if (mode == Mode.CAR_AUTONOMOUS) {
+            mode = Mode.CAR_DRIVER;
+        }
+        // ────────────────────────────────────────────────────────────────
         double factor = 1.;
         if (mode.equals(Mode.UNKNOWN)){
             //todo quick solution to the queries before mode selection: 80% of travel time by car;
